@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from booking_service.front import (
-    get_user_data, get_table_data, get_confirmation,
+    get_user_registration_data, get_table_data, get_confirmation,
     send_booking_data
 )
 from booking_service import crud, models
@@ -45,7 +45,7 @@ async def booking():
 
 @app.get('/registration')
 async def registration(db: Session = Depends(get_db)):
-    user_data = get_user_data()
+    user_data = get_user_registration_data()
     db_user = crud.get_user_by_phone(db, user_data.phone)
     crud.create_user(db, user_data)
     response = RedirectResponse('/book')
