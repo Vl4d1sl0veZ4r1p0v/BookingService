@@ -24,11 +24,13 @@ def get_db():
         db.close()
 
 
-def root():
+@app.get('/')
+async def root():
     return {"message": "Hello World!"}
 
 
-def confirmation():
+@app.get('/confirmation')
+async def confirmation():
     send_booking_data()
     confirmation_response = get_confirmation()
     if confirmation_response is True:
@@ -36,13 +38,15 @@ def confirmation():
     return {"message": "Not Cool"}
 
 
-def booking(db: Session = Depends(get_db)):
+@app.get('/book')
+async def booking():
     user_id = 1
-    free_tables = crud.get_free_tables(db)
+    free_tables = crud.get_free_tables()
     table_id = get_choosed_table_id(free_tables)
     crud.book_table(table_id, user_id)
 
 
+# @app.get('/registration')
 def registration(db: Session = Depends(get_db)):
     user_data = get_user_registration_data()
     db_user = crud.get_user_by_phone(db, user_data.phone)
@@ -51,5 +55,17 @@ def registration(db: Session = Depends(get_db)):
     return response
 
 
-app.mount('/', FastAPI(routes=webio_routes(root)))
-app.mount('/registration', FastAPI(routes=webio_routes(registration)))
+def main():
+    db = get_db()
+    user_data = get_user_registration_data()
+    # db_user = crud.get_user_by_phone(db, user_data.phone)
+    # crud.create_user(db, user_data)
+    #
+    # user_id = 1
+    # free_tables = crud.get_free_tables()
+    # table_id = get_choosed_table_id(free_tables)
+    # crud.book_table(table_id, user_id)
+    user_data = get_user_registration_data()
+
+
+app.mount('/', FastAPI(routes=webio_routes(main)))
