@@ -3,7 +3,11 @@ from booking_service import schemas, models
 
 
 def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+
+def get_user_by_phone(db: Session, user_phone: str):
+    return db.query(models.User).filter(models.User.phone == user_phone).first()
 
 
 def create_user(db: Session, user: schemas.User):
@@ -34,3 +38,7 @@ def create_table(db: Session, table: schemas.Table):
     db.commit()
     db.refresh(db_table)
     return db_table
+
+
+def book_table(*args):
+    pass

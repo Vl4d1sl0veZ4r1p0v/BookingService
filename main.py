@@ -1,20 +1,26 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from booking_service.front import (
     get_user_data, get_table_data, get_confirmation,
     send_booking_data
 )
-from booking_service.database import create_user, book_table
+from booking_service import crud, models
+from booking_service.database import SessionLocal, engine
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 
-class UserData(BaseModel):
-    phone_number: str
-    firstname: str
-    lastname: str
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get('/')
@@ -34,13 +40,14 @@ async def confirmation():
 @app.get('/book')
 async def booking():
     table_data = get_table_data()
-    book_table(table_data)
+    crud.book_table(table_data)
 
 
 @app.get('/registration')
-async def registration():
+async def registration(db: Session = Depends(get_db)):
     user_data = get_user_data()
-    create_user(user_data)
+    db_user = crud.get_user_by_phone(db, user_data.phone)
+    crud.create_user(db, user_data)
     response = RedirectResponse('/book')
     return response
 
