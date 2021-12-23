@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
-from front import (
+from booking_service.front import (
     get_user_data, get_table_data, get_confirmation,
     send_booking_data
 )
-from database import put_user_data, book_table
+from booking_service.database import create_user, book_table
 
 app = FastAPI()
 
@@ -40,7 +40,7 @@ async def booking():
 @app.get('/registration')
 async def registration():
     user_data = get_user_data()
-    put_user_data(user_data)
+    create_user(user_data)
     response = RedirectResponse('/book')
     return response
 
