@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+from pywebio.platform.fastapi import webio_routes
 
 from booking_service.front import (
-    get_user_registration_data, get_table_data, get_confirmation,
+    get_user_registration_data, get_choosed_table_id, get_confirmation,
     send_booking_data
 )
 from booking_service import crud, models
@@ -23,13 +24,11 @@ def get_db():
         db.close()
 
 
-@app.get('/')
-async def root():
+def root():
     return {"message": "Hello World!"}
 
 
-@app.get('/confirmation')
-async def confirmation():
+def confirmation():
     send_booking_data()
     confirmation_response = get_confirmation()
     if confirmation_response is True:
@@ -37,14 +36,14 @@ async def confirmation():
     return {"message": "Not Cool"}
 
 
-@app.get('/book')
-async def booking():
-    table_data = get_table_data()
-    crud.book_table(table_data)
+def booking(db: Session = Depends(get_db)):
+    user_id = 1
+    free_tables = crud.get_free_tables(db)
+    table_id = get_choosed_table_id(free_tables)
+    crud.book_table(table_id, user_id)
 
 
-@app.get('/registration')
-async def registration(db: Session = Depends(get_db)):
+def registration(db: Session = Depends(get_db)):
     user_data = get_user_registration_data()
     db_user = crud.get_user_by_phone(db, user_data.phone)
     crud.create_user(db, user_data)
@@ -52,5 +51,5 @@ async def registration(db: Session = Depends(get_db)):
     return response
 
 
-if __name__ == "__main__":
-    ...
+app.mount('/', FastAPI(routes=webio_routes(root)))
+app.mount('/registration', FastAPI(routes=webio_routes(registration)))

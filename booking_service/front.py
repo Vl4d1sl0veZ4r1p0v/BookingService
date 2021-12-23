@@ -1,4 +1,4 @@
-from pywebio.input import input_group, input
+from pywebio.input import input_group, input, select
 
 from booking_service.schemas import User, Table
 
@@ -32,13 +32,18 @@ def get_user_registration_data():
     # )
 
 
-def get_table_data():
-    return Table(
-        id=1,
-        capacity=2,
-        price_per_place=1000,
-        booker_id=1,
+def get_choosed_table_id(free_tables: list):
+    table_data = select(
+        "Выберите столик",
+        free_tables
     )
+    return table_data['id']
+    # return Table(
+    #     id=1,
+    #     capacity=2,
+    #     price_per_place=1000,
+    #     booker_id=1,
+    # )
 
 
 def send_booking_data():

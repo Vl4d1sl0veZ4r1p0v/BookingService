@@ -40,5 +40,9 @@ def create_table(db: Session, table: schemas.Table):
     return db_table
 
 
-def book_table(*args):
-    pass
+def book_table(db: Session, table_id: int, user_id: int):
+    db_table = db.query(models.Table).filter(models.Table.id == table_id).first()
+    db_table.booker_id = user_id
+    db.commit()
+    db.refresh(db_table)
+    return db_table
