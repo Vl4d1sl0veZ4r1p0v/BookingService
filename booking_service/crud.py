@@ -25,7 +25,7 @@ def create_user(db: Session, user: schemas.User):
 
 
 def get_free_tables(db: Session):
-    return db.query(models.Table).filter(models.Table.booker_id is None).all()
+    return db.query(models.Table).filter(models.Table.booker_id is not None).all()
 
 
 def create_table(db: Session, table: schemas.Table):

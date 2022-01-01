@@ -15,9 +15,6 @@ class Table(TableBase):
     price_per_place: float
     booker_id: int
 
-    class Config:
-        orm_mode = True
-
 
 class UserBase(BaseModel):
     phone: str
@@ -33,6 +30,3 @@ class User(UserBase):
     number_of_persons: Optional[int] = None
     table_id: int
     booking_time: int
-
-    class Config:
-        orm_mode = True

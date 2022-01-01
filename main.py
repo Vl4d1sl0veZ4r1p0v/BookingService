@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 from fastapi import FastAPI, Depends
-from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from pywebio.platform.fastapi import webio_routes
 
@@ -19,18 +19,12 @@ app = FastAPI()
 def get_db():
     db = SessionLocal()
     try:
-        yield db
+        return db
     finally:
         db.close()
 
 
-@app.get('/')
-async def root():
-    return {"message": "Hello World!"}
-
-
-@app.get('/confirmation')
-async def confirmation():
+def confirmation():
     send_booking_data()
     confirmation_response = get_confirmation()
     if confirmation_response is True:
@@ -38,34 +32,40 @@ async def confirmation():
     return {"message": "Not Cool"}
 
 
-@app.get('/book')
-async def booking():
+def booking():
     user_id = 1
     free_tables = crud.get_free_tables()
     table_id = get_choosed_table_id(free_tables)
     crud.book_table(table_id, user_id)
 
 
-# @app.get('/registration')
-def registration(db: Session = Depends(get_db)):
+def registration(db: Session):
     user_data = get_user_registration_data()
     db_user = crud.get_user_by_phone(db, user_data.phone)
     crud.create_user(db, user_data)
-    response = RedirectResponse('/book')
-    return response
 
 
 def main():
     db = get_db()
-    user_data = get_user_registration_data()
+
+    # кейс, когда пользователь попадает сразу на страницу регистрации
+    # и вводит свои данные
+    # user_data = get_user_registration_data()
     # db_user = crud.get_user_by_phone(db, user_data.phone)
     # crud.create_user(db, user_data)
-    #
-    # user_id = 1
-    # free_tables = crud.get_free_tables()
-    # table_id = get_choosed_table_id(free_tables)
-    # crud.book_table(table_id, user_id)
-    user_data = get_user_registration_data()
+
+    # пользователь зарегистрирован, нужно прикрепить столик за его id в бд.
+    user_id = 1  # Как получить id пользователя из бд?
+    free_tables = crud.get_free_tables(db)
+    table_id = get_choosed_table_id(free_tables)
+    crud.book_table(db, table_id, user_id)
+    # нужно, чтобы пользователю возвращялся идентификатор подтверждения, что он тот, кем представляется.
+
+    # панель добавления новых столиков в базу.
+    # но это, ведь, совсем не обязательно! базу можно наполнять первое время и руками.
 
 
 app.mount('/', FastAPI(routes=webio_routes(main)))
+
+if __name__ == "__main__":
+    main()
