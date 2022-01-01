@@ -1,19 +1,13 @@
+# -*- coding: utf-8 -*-
 from typing import Optional
 from pydantic import BaseModel
 
 
-class TableBase(BaseModel):
-    capacity: int
-
-
-class TableCreate(TableBase):
-    pass
-
-
-class Table(TableBase):
+class Table(BaseModel):
     id: int
-    price_per_place: float
-    booker_id: int
+    capacity: int
+    price_per_hour: float  # Переделал, так как мы бронируем весь столик, нет смысла каждое место отдельно рассмаривать
+    booker_id: Optional[int]  # Нужно, так как столик может быть не забронированным.
 
 
 class UserBase(BaseModel):

@@ -18,5 +18,5 @@ class Table(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     capacity = Column(Integer)
-    price_per_place = Column(Float)
-    booker_id = Column(Integer, ForeignKey('users.id'))
+    price_per_hour = Column(Float)
+    booker_id = Column(Integer, ForeignKey('users.id'), nullable=True)

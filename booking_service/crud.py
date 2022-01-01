@@ -31,7 +31,7 @@ def get_free_tables(db: Session):
 def create_table(db: Session, table: schemas.Table):
     db_table = models.Table(
         capacity=table.capacity,
-        price_per_place=table.price_per_place,
+        price_per_hour=table.price_per_hour,
         booker_id=table.booker_id
     )
     db.add(db_table)

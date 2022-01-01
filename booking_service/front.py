@@ -36,7 +36,7 @@ def get_user_registration_data():
 def get_choosed_table_id(free_tables: List[Table]):
     table_data = select(
         "Выберите столик",
-        free_tables
+        free_tables #  Короче, здесь должна быть строка
     )
     return table_data['id']
     # return Table(

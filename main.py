@@ -7,7 +7,7 @@ from booking_service.front import (
     get_user_registration_data, get_choosed_table_id, get_confirmation,
     send_booking_data
 )
-from booking_service import crud, models
+from booking_service import crud, models, schemas
 from booking_service.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -45,6 +45,10 @@ def registration(db: Session):
     crud.create_user(db, user_data)
 
 
+def table_info(table: schemas.Table):
+    return f'Столик на {table.capacity}, цена в час - {table.price_per_hour}'
+
+
 def main():
     db = get_db()
 
@@ -57,7 +61,13 @@ def main():
     # пользователь зарегистрирован, нужно прикрепить столик за его id в бд.
     user_id = 1  # Как получить id пользователя из бд?
     free_tables = crud.get_free_tables(db)
-    table_id = get_choosed_table_id(free_tables)
+    free_tables_json = list(map(lambda x: table_info(schemas.Table(
+        id=x.id,
+        capacity=x.capacity,
+        price_per_hour=x.price_per_hour,
+        booker_id=x.booker_id
+    )), free_tables))
+    table_id = get_choosed_table_id(free_tables_json)
     crud.book_table(db, table_id, user_id)
     # нужно, чтобы пользователю возвращялся идентификатор подтверждения, что он тот, кем представляется.
 
