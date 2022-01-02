@@ -72,8 +72,8 @@ def main():
     # но это, ведь, совсем не обязательно! базу можно наполнять первое время и руками.\
     checksum = str(hash(time() + user_id))
     qrcode = pyqrcode.create(get_host_url() + "check/" + checksum)
-    qrcode_image = qrcode.png_as_base64_str()
-    put_confirmation(io.BytesIO(qrcode_image).read())
+    qrcode.png('user.png', scale=20)
+    put_confirmation(open('user.png', 'rb').read())
 
 
 app.mount('/', FastAPI(routes=webio_routes(main)))
