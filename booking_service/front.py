@@ -1,5 +1,6 @@
 from typing import List
 from pywebio.input import input_group, input, select
+from pywebio.output import put_image
 
 from booking_service.schemas import User, Table
 import booking_service.models as models
@@ -56,5 +57,5 @@ def send_booking_data():
     ...
 
 
-def get_confirmation():
-    ...
+def put_confirmation(qrcode_image: bytes):
+    put_image(qrcode_image)
