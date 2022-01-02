@@ -2,6 +2,7 @@ from typing import List
 from pywebio.input import input_group, input, select
 
 from booking_service.schemas import User, Table
+import booking_service.models as models
 
 
 def get_user_registration_data():
@@ -33,18 +34,22 @@ def get_user_registration_data():
     )
 
 
-def get_choosed_table_id(free_tables: List[Table]):
+def table_info(table: models.Table):
+    return f'{table.id}: Столик на {table.capacity}, цена в час - {table.price_per_hour}'
+
+
+def get_choosed_table_id(free_tables: List[models.Table]):
     table_data = select(
         "Выберите столик",
-        free_tables #  Короче, здесь должна быть строка
+        list(map(lambda x: table_info(Table(
+            id=x.id,
+            capacity=x.capacity,
+            price_per_hour=x.price_per_hour,
+            booker_id=x.booker_id
+        )), free_tables))  # Короче, здесь должна быть строка
     )
-    return table_data['id']
-    # return Table(
-    #     id=1,
-    #     capacity=2,
-    #     price_per_place=1000,
-    #     booker_id=1,
-    # )
+    return int(table_data[:table_data.find(":")])
+    # return 1
 
 
 def send_booking_data():
