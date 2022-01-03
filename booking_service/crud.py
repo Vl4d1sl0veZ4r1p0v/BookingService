@@ -14,9 +14,6 @@ def create_user(db: Session, user: schemas.User):
     db_user = models.User(
         phone=user.phone,
         name=user.name,
-        number_of_persons=user.number_of_persons,
-        table_id=user.table_id,
-        booking_time=user.booking_time
     )
     db.add(db_user)
     db.commit()
