@@ -8,19 +8,10 @@ class Table(BaseModel):
     capacity: int
     price_per_hour: float  # Переделал, так как мы бронируем весь столик, нет смысла каждое место отдельно рассмаривать
     booker_id: Optional[int]  # Нужно, так как столик может быть не забронированным.
+    checksum: Optional[int]
 
 
-class UserBase(BaseModel):
-    phone: str
-    name: str
-
-
-class UserCreate(UserBase):
-    pass
-
-
-class User(UserBase):
+class User(BaseModel):
     id: int
-    number_of_persons: Optional[int] = None
-    table_id: int
-    booking_time: int
+    phone: str  # Имеет смысл делать id - номер телефона, чтобы не было несколько пользователей с одним номером.
+    name: str
