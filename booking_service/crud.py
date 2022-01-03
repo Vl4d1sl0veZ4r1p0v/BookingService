@@ -40,6 +40,10 @@ def create_table(db: Session, table: schemas.Table):
     return db_table
 
 
+def get_booked_tables(db: Session, checksum: int):
+    return db.query(models.User).filter(models.Table.checksum == checksum).all()
+
+
 def book_table(db: Session, table_id: int, user_id: int):
     db_table = db.query(models.Table).filter(models.Table.id == table_id).first()
     db_table.booker_id = user_id

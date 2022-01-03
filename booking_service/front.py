@@ -1,6 +1,6 @@
 from typing import List
 from pywebio.input import input_group, input, select
-from pywebio.output import put_image
+from pywebio.output import put_image, put_markdown
 
 from booking_service.schemas import User, Table
 import booking_service.models as models
@@ -53,8 +53,8 @@ def get_choosed_table_id(free_tables: List[models.Table]):
     # return 1
 
 
-def send_booking_data():
-    ...
+def send_booking_data(text: str):
+    put_markdown(text)
 
 
 def put_confirmation(qrcode_image: bytes):
