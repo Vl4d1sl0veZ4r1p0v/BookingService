@@ -25,7 +25,7 @@ def create_user(db: Session, user: schemas.User):
 
 
 def get_free_tables(db: Session):
-    return db.query(models.Table).filter(models.Table.booker_id is not None).all()
+    return db.query(models.Table).filter(models.Table.booker_id == None).all()
 
 
 def create_table(db: Session, table: schemas.Table):
@@ -41,12 +41,13 @@ def create_table(db: Session, table: schemas.Table):
 
 
 def get_booked_tables(db: Session, checksum: int):
-    return db.query(models.User).filter(models.Table.checksum == checksum).all()
+    return db.query(models.Table).filter(models.Table.checksum == checksum).all()
 
 
-def book_table(db: Session, table_id: int, user_id: int):
+def book_table(db: Session, table_id: int, user_id: int, checksum: int):
     db_table = db.query(models.Table).filter(models.Table.id == table_id).first()
     db_table.booker_id = user_id
+    db_table.checksum = checksum
     db.commit()
     db.refresh(db_table)
     return db_table

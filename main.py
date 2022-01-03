@@ -54,7 +54,7 @@ def check(checksum):
     db = get_db()
     booked_tables = crud.get_booked_tables(db, checksum)
     if len(booked_tables) > 0:
-        text = "Hui"
+        text = ' '.join(map(str, list(map(lambda x: (x.id, x.booker_id), booked_tables))))
     else:
         text = "Has no booked tables."
     return text
@@ -77,12 +77,13 @@ def main():
     user_id = 1  # Как получить id пользователя из бд?
     free_tables = crud.get_free_tables(db)
     table_id = get_choosed_table_id(free_tables)
-    crud.book_table(db, table_id, user_id)
+    checksum = str(hash(time() + user_id))
+    crud.book_table(db, table_id, user_id, checksum)
     # нужно, чтобы пользователю возвращялся идентификатор подтверждения, что он тот, кем представляется.
 
     # панель добавления новых столиков в базу.
     # но это, ведь, совсем не обязательно! базу можно наполнять первое время и руками.\
-    checksum = str(hash(time() + user_id))
+
     url = get_host_url() + "check/" + checksum
     print(url)
     qrcode = pyqrcode.create(url)
