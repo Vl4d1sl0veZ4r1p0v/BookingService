@@ -37,14 +37,28 @@ def create_table(db: Session, table: schemas.Table):
     return db_table
 
 
-def get_booked_tables(db: Session, checksum: int):
+def get_booked_tables_by_checksum(db: Session, checksum: int):
     return db.query(models.Table).filter(models.Table.checksum == checksum).all()
+
+
+def get_booked_tables_by_booker_id(db: Session, booker_id: int):
+    return db.query(models.Table).filter(models.Table.booker_id == booker_id).all()
 
 
 def book_table(db: Session, table_id: int, user_id: int, checksum: int):
     db_table = db.query(models.Table).filter(models.Table.id == table_id).first()
     db_table.booker_id = user_id
     db_table.checksum = checksum
+    db.commit()
+    db.refresh(db_table)
+    return db_table
+
+
+def cancel_booking(db: Session, user_id: int):
+    db_tables = db.query(models.Table).filter(models.Table.booker_id == user_id).all()
+    for db_table in db_tables:
+        db_table.booker_id = None
+        db_table.checksum = None
     db.commit()
     db.refresh(db_table)
     return db_table

@@ -1,6 +1,6 @@
 from typing import List
 from pywebio.input import input_group, input, select
-from pywebio.output import put_image
+from pywebio.output import put_image, get_scope, use_scope, put_button
 
 from booking_service.schemas import User, Table
 import booking_service.models as models
@@ -39,4 +39,9 @@ def get_choosed_table_id(free_tables: List[models.Table]):
 
 
 def put_confirmation(qrcode_image: bytes):
-    put_image(qrcode_image)
+    main_scope = get_scope(-1)
+    booking_cancel = False
+    with use_scope(main_scope):
+        put_image(qrcode_image)
+        booking_cancel = put_button('Отменить бронирование', onclick=lambda x: True, color='danger', outline=True)
+    return booking_cancel

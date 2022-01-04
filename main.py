@@ -7,7 +7,7 @@ from pywebio.platform.fastapi import webio_routes
 from booking_service.front import (
     get_user_registration_data, get_choosed_table_id, put_confirmation,
 )
-from booking_service import crud, models
+from booking_service import crud, models, schemas
 from booking_service.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -23,11 +23,10 @@ def get_db():
         db.close()
 
 
-#  Так как мы уже не в сессии pywebio, то не можем им пользоваться.
 @app.get("/check/{checksum}")
 def check(checksum):
     db = get_db()
-    booked_tables = crud.get_booked_tables(db, checksum)
+    booked_tables = crud.get_booked_tables_by_checksum(db, checksum)
     if len(booked_tables) > 0:
         text = ' '.join(map(str, list(map(lambda x: (x.id, x.booker_id), booked_tables))))
     else:
@@ -42,26 +41,25 @@ def get_host_url():
 def main():
     db = get_db()
 
-    # кейс, когда пользователь попадает сразу на страницу регистрации
-    # и вводит свои данные
     user_data = get_user_registration_data()
-    db_user = crud.create_user(db, user_data)
-
-    # пользователь зарегистрирован, нужно прикрепить столик за его id в бд.
-    free_tables = crud.get_free_tables(db)
-    table_id = get_choosed_table_id(free_tables)
-    checksum = hash(time() + db_user.id)
-    crud.book_table(db, table_id, db_user.id, checksum)
-    # нужно, чтобы пользователю возвращялся идентификатор подтверждения, что он тот, кем представляется.
-
-    # панель добавления новых столиков в базу.
-    # но это, ведь, совсем не обязательно! базу можно наполнять первое время и руками.\
-
+    # user_data = schemas.User(id=1, phone='+79122918214', name='Vlad')
+    db_user = crud.get_user_by_phone(db, user_data.phone)
+    if db_user is None:
+        db_user = crud.create_user(db, user_data)
+    tables_booked_by_user = crud.get_booked_tables_by_booker_id(db, db_user.id)
+    if len(tables_booked_by_user) == 0:
+        free_tables = crud.get_free_tables(db)
+        table_id = get_choosed_table_id(free_tables)
+        checksum = hash(time() + db_user.id)
+        crud.book_table(db, table_id, db_user.id, checksum)
+    else:
+        checksum = tables_booked_by_user[0].checksum
     url = get_host_url() + "check/" + str(checksum)
-    print(url)
     qrcode = pyqrcode.create(url)
     qrcode.png('user.png', scale=20)
-    put_confirmation(open('user.png', 'rb').read())
+    booking_cancel = put_confirmation(open('user.png', 'rb').read())
+    if booking_cancel:
+        crud.cancel_booking(db, db_user.id)
 
 
 app.mount('/', FastAPI(routes=webio_routes(main)))
