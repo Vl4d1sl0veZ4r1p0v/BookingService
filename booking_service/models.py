@@ -1,4 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, UniqueConstraint
+from sqlalchemy import (Column, ForeignKey, Integer, String, Float,
+                        DateTime, UniqueConstraint, Boolean)
 from booking_service.database import Base
 
 
@@ -11,12 +12,20 @@ class User(Base):
     __table_args__ = (UniqueConstraint('phone', name='_user_phone_uc'),)
 
 
-class Table(Base):
-    __tablename__ = 'tables'
+class Desk(Base):
+    __tablename__ = 'desks'
 
     id = Column(Integer, primary_key=True, index=True)
     capacity = Column(Integer)
     price_per_hour = Column(Float)
-    booking_time: int
-    booker_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-    checksum = Column(Integer, nullable=True)
+
+
+class Order(Base):
+    __tablename__ = 'orders'
+
+    id = Column(Integer, primary_key=True, index=True)
+    booking_time = Column(DateTime)
+    duration_of_booking = Column(Integer)
+    booker_id = Column(Integer, ForeignKey('users.id'))
+    desk_id = Column(Integer, ForeignKey('desks.id'))
+    checked = Column(Boolean, default=False)

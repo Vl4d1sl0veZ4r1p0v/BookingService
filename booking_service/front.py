@@ -1,5 +1,5 @@
 from typing import List
-from pywebio.input import input_group, input, select
+from pywebio.input import input_group, input, select, radio
 from pywebio.output import put_image, get_scope, use_scope, put_button
 
 from booking_service.schemas import User, Table
@@ -21,11 +21,11 @@ def get_user_registration_data():
     )
 
 
-def table_info(table: models.Table):
+def table_info(table: models.Desk):
     return f'{table.id}: Столик на {table.capacity}, цена в час - {table.price_per_hour}'
 
 
-def get_choosed_table_id(free_tables: List[models.Table]):
+def get_choosed_table_id(free_tables: List[models.Desk]):
     table_data = select(
         "Выберите столик",
         list(map(lambda x: table_info(Table(
@@ -39,9 +39,14 @@ def get_choosed_table_id(free_tables: List[models.Table]):
 
 
 def put_confirmation(qrcode_image: bytes):
-    main_scope = get_scope(-1)
-    booking_cancel = False
-    with use_scope(main_scope):
-        put_image(qrcode_image)
-        booking_cancel = put_button('Отменить бронирование', onclick=lambda x: True, color='danger', outline=True)
-    return booking_cancel
+    put_image(qrcode_image)
+
+
+def get_booking_time() -> str:
+    booking_time = input_group(
+        'Время бронирования',
+        [
+            radio(text) for text in ['hui', 'foo']
+        ]
+    )
+    return booking_time
