@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, UniqueConstraint
 from booking_service.database import Base
 
 
@@ -8,6 +8,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     phone = Column(String)
     name = Column(String)
+    __table_args__ = (UniqueConstraint('phone', name='_user_phone_uc'),)
 
 
 class Table(Base):
