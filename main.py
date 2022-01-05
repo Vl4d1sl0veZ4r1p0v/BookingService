@@ -9,7 +9,7 @@ from booking_service.front import (
     get_user_registration_data, get_choosed_table_id, put_confirmation,
     get_booking_time
 )
-from booking_service import crud, models
+from booking_service import crud, models, schemas
 from booking_service.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -28,7 +28,7 @@ def get_db():
 @app.get("/check/{checksum}")
 def check(checksum):
     db = get_db()
-    booked_tables = crud.get_booked_tables_by_checksum(db, checksum)
+    booked_tables = crud.get_orders_by_checksum(db, checksum)
     if len(booked_tables) > 0:
         text = ' '.join(map(str, list(map(lambda x: (x.id, x.booker_id), booked_tables))))
     else:
@@ -48,19 +48,20 @@ def get_host_url():
 def main():
     db = get_db()
 
-    user_data = get_user_registration_data()
+    # user_data = get_user_registration_data()
+    user_data = schemas.User(id=1, phone='+79122918214', name='Vlad')
     db_user = crud.get_user_by_phone(db, user_data.phone)
     if db_user is None:
         db_user = crud.create_user(db, user_data)
-    tables_booked_by_user = crud.get_booked_tables_by_booker_id(db, db_user.id)
-    if len(tables_booked_by_user) == 0:
+    table_booked_by_user = crud.get_desk_by_booker_id(db, db_user.id)
+    if table_booked_by_user is not None:
         free_tables = crud.get_free_tables(db)
         table_id = get_choosed_table_id(free_tables)
         booking_time = get_booking_time()
         checksum = hash(time() + db_user.id)
-        crud.book_table(db, table_id, db_user.id, checksum)
+        crud.book_desk(db, table_id, db_user.id, checksum)
     else:
-        checksum = tables_booked_by_user[0].checksum
+        checksum = table_booked_by_user[0].checksum
     url = get_host_url() + "check/" + str(checksum)
     qrcode = pyqrcode.create(url)
     qrcode.png('user.png', scale=20)
