@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.orm import Session
 from booking_service import schemas, models
 
@@ -28,7 +30,7 @@ def get_free_tables(db: Session):
     return db_desks
 
 
-def create_table(db: Session, desk: schemas.Table):
+def create_table(db: Session, desk: schemas.Desk):
     db_desk = models.Desk(
         capacity=desk.capacity,
         price_per_hour=desk.price_per_hour,
@@ -48,10 +50,11 @@ def get_desk_by_booker_id(db: Session, booker_id: int):
     return db.query(models.Desk).filter(models.Desk.id == db_order.desk_id).first()
 
 
-def book_desk(db: Session, desk_id: int, user_id: int):
+def book_desk(db: Session, desk_id: int, user_id: int, checksum: int, booking_time: str, duration_of_booking: int):
     db_order = models.Order(
         booker_id=user_id,
         desk_id=desk_id
+
     )
     db.add(db_order)
     db.commit()

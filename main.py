@@ -7,7 +7,7 @@ from fastapi_utils.tasks import repeat_every
 
 from booking_service.front import (
     get_user_registration_data, get_choosed_table_id, put_confirmation,
-    get_booking_time
+    get_booking_time, time_table, get_duration_of_booking
 )
 from booking_service import crud, models, schemas
 from booking_service.database import SessionLocal, engine
@@ -48,8 +48,8 @@ def get_host_url():
 def main():
     db = get_db()
 
-    # user_data = get_user_registration_data()
-    user_data = schemas.User(id=1, phone='+79122918214', name='Vlad')
+    user_data = get_user_registration_data()
+    # user_data = schemas.User(id=1, phone='+79122918214', name='Vlad')
     db_user = crud.get_user_by_phone(db, user_data.phone)
     if db_user is None:
         db_user = crud.create_user(db, user_data)
@@ -57,12 +57,19 @@ def main():
     if table_booked_by_user is not None:
         free_tables = crud.get_free_tables(db)
         table_id = get_choosed_table_id(free_tables)
+        table_id = 2
         booking_time = get_booking_time()
+        booking_time_id = time_table[booking_time]
+        duration_of_booking = get_duration_of_booking()
         checksum = hash(time() + db_user.id)
-        crud.book_desk(db, table_id, db_user.id, checksum)
+        crud.book_desk(
+            db, table_id, db_user.id, checksum,
+            time_table[booking_time], duration_of_booking
+        )
     else:
         checksum = table_booked_by_user[0].checksum
     url = get_host_url() + "check/" + str(checksum)
+    print(url)
     qrcode = pyqrcode.create(url)
     qrcode.png('user.png', scale=20)
     put_confirmation(open('user.png', 'rb').read())
