@@ -8,7 +8,7 @@ from booking_service.schemas import User, Desk
 from booking_service import friday_datetime
 
 time_table = {
-    time_point.strftime('%H:%M'): time_point
+    time_point.strftime('%H:%M'): time_point.strftime('%Y-%m-%d %H:%M:%S')
     for time_point in [
         friday_datetime + datetime.timedelta(hours=hour) for hour in range(10, 27)
     ]

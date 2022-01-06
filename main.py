@@ -25,12 +25,13 @@ def get_db():
         db.close()
 
 
-@app.get("/check/{checksum}")
-def check(checksum):
+@app.get("/check/{order_id}")
+def check(order_id):
     db = get_db()
-    booked_tables = crud.get_orders_by_checksum(db, checksum)
-    if len(booked_tables) > 0:
-        text = ' '.join(map(str, list(map(lambda x: (x.id, x.booker_id), booked_tables))))
+    order = crud.get_order_by_id(db, order_id)
+    order = crud.check_order(db, order.id)
+    if order:
+        text = f"You booked desk: {order.desk_id} at {order.booking_time} for {order.duration_of_booking}h"
     else:
         text = "Has no booked tables."
     return text
@@ -48,29 +49,25 @@ def get_host_url():
 def main():
     db = get_db()
 
-    # user_data = get_user_registration_data()
-    user_data = schemas.User(id=3, phone='+79122918215', name='Vova')
+    user_data = get_user_registration_data()
+    # user_data = schemas.User(id=3, phone='+79122918215', name='Vova')
     db_user = crud.get_user_by_phone(db, user_data.phone)
     if db_user is None:
         db_user = crud.create_user(db, user_data)
-    # print('hui')
-    table_booked_by_user = crud.get_desk_by_booker_id(db, db_user.id)
+    order_by_user = crud.get_order_by_booker_id(db, db_user.id)
 
-    if table_booked_by_user is None:
+    if order_by_user is None:
         free_tables = crud.get_free_tables(db)
         table_id = get_choosed_table_id(free_tables)
         table_id = 2
         booking_time = get_booking_time()
         booking_time_id = time_table[booking_time]
-        duration_of_booking = get_duration_of_booking()
-        checksum = hash(time() + db_user.id)
-        crud.book_desk(
-            db, table_id, db_user.id, checksum,
+        duration_of_booking = int(get_duration_of_booking())
+        order_by_user = crud.book_desk(
+            db, table_id, db_user.id,
             time_table[booking_time], duration_of_booking
         )
-    else:
-        checksum = table_booked_by_user[0].checksum
-    url = get_host_url() + "check/" + str(checksum)
+    url = get_host_url() + "check/" + str(order_by_user.id)
     print(url)
     qrcode = pyqrcode.create(url)
     qrcode.png('user.png', scale=20)

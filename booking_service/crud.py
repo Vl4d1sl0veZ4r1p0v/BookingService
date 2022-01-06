@@ -41,8 +41,8 @@ def create_table(db: Session, desk: schemas.Desk):
     return db_desk
 
 
-def get_orders_by_checksum(db: Session, checksum: int):
-    return db.query(models.Desk).filter(models.Desk.checksum == checksum).all()
+def get_order_by_id(db: Session, order_id: int):
+    return db.query(models.Order).filter(models.Order.id == order_id).first()
 
 
 def get_desk_by_booker_id(db: Session, booker_id: int):
@@ -52,7 +52,12 @@ def get_desk_by_booker_id(db: Session, booker_id: int):
     return None
 
 
-def book_desk(db: Session, desk_id: int, user_id: int, checksum: int, booking_time: str, duration_of_booking: int):
+def get_order_by_booker_id(db: Session, booker_id: int):
+    db_order = db.query(models.Order).filter(models.Order.booker_id == booker_id).first()
+    return db_order
+
+
+def book_desk(db: Session, desk_id: int, user_id: int, booking_time: str, duration_of_booking: int):
     db_order = models.Order(
         booker_id=user_id,
         desk_id=desk_id
@@ -66,3 +71,11 @@ def book_desk(db: Session, desk_id: int, user_id: int, checksum: int, booking_ti
 
 def cancel_booking(db: Session, user_id: int):
     db_tables = db.query(models.Desk).filter(models.Desk.booker_id == user_id).delete()
+
+
+def check_order(db: Session, order_id: int):
+    db_order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    db_order.checked = True
+    db.commit()
+    db.refresh(db_order)
+    return db_order
