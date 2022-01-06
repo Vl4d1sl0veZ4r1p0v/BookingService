@@ -1,6 +1,5 @@
-import datetime
 from sqlalchemy import (Column, ForeignKey, Integer, String, Float,
-                        DateTime, UniqueConstraint, Boolean)
+                        UniqueConstraint, Boolean)
 from booking_service.database import Base
 
 

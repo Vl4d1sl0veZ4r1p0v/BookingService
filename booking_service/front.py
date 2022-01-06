@@ -2,7 +2,7 @@ import booking_service.models as models
 import datetime
 from typing import List
 from pywebio.input import input_group, input, select, radio
-from pywebio.output import put_image, get_scope, use_scope, put_button
+from pywebio.output import put_image
 
 from booking_service.schemas import User, Desk
 from booking_service import friday_datetime

@@ -9,7 +9,7 @@ from booking_service.front import (
     get_user_registration_data, get_choosed_table_id, put_confirmation,
     get_booking_time, time_table, get_duration_of_booking
 )
-from booking_service import crud, models, schemas
+from booking_service import crud, models
 from booking_service.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -67,16 +67,14 @@ def main():
         table_id = get_choosed_table_id(free_tables)
         booking_time = get_booking_time()
         duration_of_booking = int(get_duration_of_booking())
-        print(booking_time, duration_of_booking)
         order_by_user = crud.book_desk(
             db, table_id, db_user.id,
             time_table[booking_time], duration_of_booking
         )
     url = get_host_url() + "check/" + str(order_by_user.id)
-    print(url)
     qrcode = pyqrcode.create(url)
     qrcode.png('user.png', scale=20)
-    put_confirmation(open('user.png', 'rb').read())
+    put_confirmation(open('resources/user.png', 'rb').read())
 
 
 app.mount('/', FastAPI(routes=webio_routes(main)))

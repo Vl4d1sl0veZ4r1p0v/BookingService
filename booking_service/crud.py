@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy.orm import Session
 from booking_service import schemas, models
 
