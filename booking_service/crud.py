@@ -60,8 +60,9 @@ def get_order_by_booker_id(db: Session, booker_id: int):
 def book_desk(db: Session, desk_id: int, user_id: int, booking_time: str, duration_of_booking: int):
     db_order = models.Order(
         booker_id=user_id,
-        desk_id=desk_id
-
+        desk_id=desk_id,
+        booking_time=booking_time,
+        duration_of_booking=duration_of_booking
     )
     db.add(db_order)
     db.commit()

@@ -24,7 +24,7 @@ class Order(Base):
     __tablename__ = 'orders'
 
     id = Column(Integer, primary_key=True, index=True)
-    booking_time = Column(DateTime)
+    booking_time = Column(String)
     duration_of_booking = Column(Integer)
     booker_id = Column(Integer, ForeignKey('users.id'))
     desk_id = Column(Integer, ForeignKey('desks.id'))

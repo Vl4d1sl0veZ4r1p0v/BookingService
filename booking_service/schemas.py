@@ -10,6 +10,6 @@ class Desk(BaseModel):
 
 
 class User(BaseModel):
-    id: int
+    id: Optional[int]
     phone: str
     name: str

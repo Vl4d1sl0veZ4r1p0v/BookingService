@@ -50,7 +50,7 @@ def main():
     db = get_db()
 
     user_data = get_user_registration_data()
-    # user_data = schemas.User(id=3, phone='+79122918215', name='Vova')
+    # user_data = schemas.User(id=1, phone='+79122918246', name='Владислав')
     db_user = crud.get_user_by_phone(db, user_data.phone)
     if db_user is None:
         db_user = crud.create_user(db, user_data)
@@ -59,7 +59,6 @@ def main():
     if order_by_user is None:
         free_tables = crud.get_free_tables(db)
         table_id = get_choosed_table_id(free_tables)
-        table_id = 2
         booking_time = get_booking_time()
         booking_time_id = time_table[booking_time]
         duration_of_booking = int(get_duration_of_booking())
