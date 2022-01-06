@@ -71,7 +71,8 @@ def book_desk(db: Session, desk_id: int, user_id: int, booking_time: str, durati
 
 
 def cancel_booking(db: Session, user_id: int):
-    db_tables = db.query(models.Desk).filter(models.Desk.booker_id == user_id).delete()
+    db_order = db.query(models.Order).filter(models.Order.booker_id == user_id).delete()
+    db.commit()
 
 
 def check_order(db: Session, order_id: int):
@@ -80,3 +81,8 @@ def check_order(db: Session, order_id: int):
     db.commit()
     db.refresh(db_order)
     return db_order
+
+
+def get_orders(db: Session):
+    db_orders = db.query(models.Order).all()
+    return db_orders

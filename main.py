@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import datetime
 import pyqrcode
 from fastapi import FastAPI
-from time import time
 from pywebio.platform.fastapi import webio_routes
 from fastapi_utils.tasks import repeat_every
 
@@ -41,16 +41,22 @@ def get_host_url():
     return "http://127.0.0.1:8000/"
 
 
-# @repeat_every(60)
-# def unbooking_tables():
-#     ...
+@app.on_event('startup')
+@repeat_every(seconds=60)
+def unbooking_tables():
+    db = get_db()
+    db_orders = crud.get_orders(db)
+    current_time = datetime.datetime.now()
+    for db_order in db_orders:
+        db_order_time = datetime.datetime.strptime(db_order.booking_time, '%Y-%m-%d %H:%M:%S')
+        if db_order_time + datetime.timedelta(minutes=15) <= current_time \
+                and not db_order.checked:
+            crud.cancel_booking(db, db_order.booker_id)
 
 
 def main():
     db = get_db()
-
     user_data = get_user_registration_data()
-    # user_data = schemas.User(id=1, phone='+79122918246', name='Владислав')
     db_user = crud.get_user_by_phone(db, user_data.phone)
     if db_user is None:
         db_user = crud.create_user(db, user_data)
@@ -60,8 +66,8 @@ def main():
         free_tables = crud.get_free_tables(db)
         table_id = get_choosed_table_id(free_tables)
         booking_time = get_booking_time()
-        booking_time_id = time_table[booking_time]
         duration_of_booking = int(get_duration_of_booking())
+        print(booking_time, duration_of_booking)
         order_by_user = crud.book_desk(
             db, table_id, db_user.id,
             time_table[booking_time], duration_of_booking
@@ -74,7 +80,6 @@ def main():
 
 
 app.mount('/', FastAPI(routes=webio_routes(main)))
-
 
 if __name__ == "__main__":
     main()
