@@ -48,13 +48,15 @@ def get_host_url():
 def main():
     db = get_db()
 
-    user_data = get_user_registration_data()
-    # user_data = schemas.User(id=1, phone='+79122918214', name='Vlad')
+    # user_data = get_user_registration_data()
+    user_data = schemas.User(id=3, phone='+79122918215', name='Vova')
     db_user = crud.get_user_by_phone(db, user_data.phone)
     if db_user is None:
         db_user = crud.create_user(db, user_data)
+    # print('hui')
     table_booked_by_user = crud.get_desk_by_booker_id(db, db_user.id)
-    if table_booked_by_user is not None:
+
+    if table_booked_by_user is None:
         free_tables = crud.get_free_tables(db)
         table_id = get_choosed_table_id(free_tables)
         table_id = 2

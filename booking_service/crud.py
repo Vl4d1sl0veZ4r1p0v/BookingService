@@ -47,7 +47,9 @@ def get_orders_by_checksum(db: Session, checksum: int):
 
 def get_desk_by_booker_id(db: Session, booker_id: int):
     db_order = db.query(models.Order).filter(models.Order.booker_id == booker_id).first()
-    return db.query(models.Desk).filter(models.Desk.id == db_order.desk_id).first()
+    if db_order:
+        return db.query(models.Desk).filter(models.Desk.id == db_order.desk_id).first()
+    return None
 
 
 def book_desk(db: Session, desk_id: int, user_id: int, checksum: int, booking_time: str, duration_of_booking: int):

@@ -24,7 +24,6 @@ def get_user_registration_data():
         ]
     )
     return User(
-        id=1,
         phone=user_data['phone'],
         name=user_data['name'],
     )
