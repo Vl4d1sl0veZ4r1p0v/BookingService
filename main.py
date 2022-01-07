@@ -29,8 +29,8 @@ def get_db():
 def check(order_id):
     db = get_db()
     order = crud.get_order_by_id(db, order_id)
-    order = crud.check_order(db, order.id)
     if order:
+        order = crud.check_order(db, order.id)
         text = f"You booked desk: {order.desk_id} at {order.booking_time} for {order.duration_of_booking}h"
     else:
         text = "Has no booked tables."
@@ -73,7 +73,7 @@ def main():
         )
     url = get_host_url() + "check/" + str(order_by_user.id)
     qrcode = pyqrcode.create(url)
-    qrcode.png('user.png', scale=20)
+    qrcode.png('resources/user.png', scale=20)
     put_confirmation(open('resources/user.png', 'rb').read())
 
 
